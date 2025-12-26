@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ISKCON Japa Ultimate</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #FF9933;
+            --bg: #050505;
+            --card: #1a1a1a;
+            --text: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body { 
+            margin: 0; background-color: var(--bg); color: var(--text);
+            font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif; height: 100vh; 
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* BACKGROUND */
+        body::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj2zqiTZ78j6B7tqYFh5Cd-agJGzRJLOLARjfgZWNDzH9YjzEJ53lN8uveWFnvniWz58inZsgDc0aZdk5Feaddu14G9hoHnEOmUPb1_3ZdkT8ShL2PWpUe_sgf-EiNU4nWqD7X9ayVkkxa_Rpw5HpmP2qXLrAb74siFSirEj_a5C8Qk1oZGTq1yrgJqQ60/s1280/maxresdefault%20(2).jpg');
+            background-size: cover; opacity: 0.15; z-index: -1;
+        }
+
+        /* NAVBAR */
+        .nav {
+            padding: 15px; background: rgba(20,20,20,0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-title { font-family: 'Cinzel', serif; color: var(--primary); font-size: 1.1rem; font-weight: bold; }
+        .stats-btn { background: rgba(255,255,255,0.1); border: 1px solid #333; color: white; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; }
+
+        /* MAIN AREA */
+        .main-area {
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; position: relative;
+        }
+
+        /* TIMER & TARGET */
+        .info-strip { width: 85%; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #ccc; }
+        .timer-box { 
+            color: var(--primary); font-weight: bold; font-family: monospace; font-size: 1.1rem; 
+            background: rgba(0,0,0,0.6); padding: 2px 10px; border-radius: 5px; border: 1px solid #333;
+        }
+
+        .progress-track { width: 85%; height: 6px; background: #333; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        .progress-fill { height: 100%; background: #4CAF50; width: 0%; transition: width 0.2s; }
+
+        /* BEAD COUNTER */
+        .bead-wrapper { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; }
+        svg { transform: rotate(-90deg); width: 100%; height: 100%; position: absolute; z-index: 5; }
+        circle { fill: none; stroke-width: 10; stroke-linecap: round; cx: 140; cy: 140; r: 125; }
+        .bg-ring { stroke: #333; }
+        .fg-ring { stroke: var(--primary); stroke-dasharray: 785; stroke-dashoffset: 785; transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 10px var(--primary)); }
+
+        .tap-btn {
+            width: 230px; height: 230px; border-radius: 50%;
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhaZSUu1t1ioA8FH5Dswww0K6l9rL__civt4QPUdSGcK9dL1CFDHY_QD_a0S6PPX66e6DG1fUx5DUL-m4sk1UmsjiZAbHCSc-PLLtaOhgMRQ_MjmsK6f6kmIzJNvHdV2XFH28Yrh8nupNqjdt0D-CdokemNsbpOpxwU2phSenRJ6a4mn282MQT2oblr2_s/s600/maxresdefault.jpg');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.9), 0 10px 30px rgba(0,0,0,0.5);
+            cursor: pointer; border: 4px solid #222; z-index: 10; position: relative; overflow: hidden;
+        }
+        
+        .tap-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.3); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 50%;
+        }
+
+        .tap-btn:active { transform: scale(0.97); border-color: var(--primary); }
+        .count-big { font-size: 5.5rem; font-weight: 700; color: white; line-height: 1; text-shadow: 0 2px 10px black; }
+        .label-small { font-size: 0.8rem; color: var(--primary); letter-spacing: 1px; font-weight: bold; margin-top: -5px; text-shadow: 0 1px 2px black; }
+
+        /* MANTRA */
+        .mantra-text { text-align: center; margin-top: 25px; opacity: 0.9; padding: 0 20px; }
+        .mantra-text h3 { margin: 0; font-size: 1rem; color: var(--primary); font-weight: 700; }
+        .mantra-text p { font-size: 0.8rem; color: #ccc; margin-top: 5px; line-height: 1.4; }
+
+        /* FOOTER CONTROLS */
+        .controls {
+            margin-top: auto; padding: 20px; width: 100%;
+            display: flex; justify-content: space-around; background: #111;
+            border-top: 1px solid #222;
+        }
+        .icon-btn {
+            background: #222; border: 1px solid #333; color: #ccc;
+            width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .icon-btn.active { color: var(--primary); border-color: var(--primary); background: rgba(255, 153, 51, 0.1); }
+
+        /* AUDIO PLAYER */
+        audio { display: none; }
+
+        /* STATS MODAL */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100;
+            display: none; flex-direction: column; padding: 20px; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-family: 'Cinzel', serif; color: var(--primary); font-size: 1.4rem; }
+        .close-btn { font-size: 2rem; color: white; cursor: pointer; line-height: 1; }
+
+        /* HISTORY LIST */
+        .history-box {
+            background: #1e1e1e; padding: 15px; border-radius: 12px; 
+            border: 1px solid #333; max-height: 300px; overflow-y: auto;
+            margin-top: 20px;
+        }
+        .history-title { color: #aaa; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        
+        .hist-item {
+            display: flex; justify-content: space-between; padding: 10px 0;
+            border-bottom: 1px dashed #333; font-size: 0.9rem;
+        }
+        .hist-item:last-child { border: none; }
+        .h-date { color: #fff; }
+        .h-time { color: var(--primary); font-weight: bold; font-family: monospace; }
+
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .dash-card { background: #1e1e1e; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #333; }
+        .dash-val { font-size: 1.5rem; font-weight: bold; color: white; }
+        .dash-lbl { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-top: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="nav">
+        <div class="nav-title">JAPA SADHANA</div>
+        <button class="stats-btn" onclick="openStats()"><i class="fas fa-history"></i> History</button>
+    </div>
+
+    <div class="main-area">
+        
+        <div class="info-strip">
+            <span>Rounds Today: <b id="todayRounds" style="color:white;">0</b> / <span id="targetDisplay">16</span></span>
+            <span class="timer-box" id="timer">00:00</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="targetBar"></div>
+        </div>
+
+        <div class="bead-wrapper">
+            <svg><circle class="bg-ring" ></circle><circle class="fg-ring" id="ring" ></circle></svg>
+            <div class="tap-btn" onclick="chant()">
+                <div class="tap-overlay">
+                    <div class="count-big" id="beadCount">0</div>
+                    <div class="label-small">BEADS</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mantra-text">
+            <h3 id="mTitle">Hare Krishna Hare Krishna</h3>
+            <p id="mBody">Krishna Krishna Hare Hare<br>Hare Rama Hare Rama<br>Rama Rama Hare Hare</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="icon-btn" onclick="changeLang()"><i class="fas fa-language"></i></button>
+        <button class="icon-btn" id="audioBtn" onclick="toggleAudio()"><i class="fas fa-music"></i></button>
+        <button class="icon-btn" onclick="resetCurrent()"><i class="fas fa-undo"></i></button>
+    </div>
+
+    <!-- Audio (Prabhupada) -->
+    <audio id="japaAudio" loop src="https://archive.org/download/SrilaPrabhupadaJapa/SrilaPrabhupadaJapa_64kb.mp3"></audio>
+
+    <!-- STATS & HISTORY MODAL -->
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal-header">
+            <div class="modal-title">Your Progress</div>
+            <div class="close-btn" onclick="closeStats()">×</div>
+        </div>
+
+        <div class="dash-grid">
+            <div class="dash-card" style="grid-column: span 2; background: linear-gradient(45deg, #FF9933, #d84315);">
+                <div class="dash-val" id="statLifetime">0</div>
+                <div class="dash-lbl" style="color:rgba(255,255,255,0.8)">Lifetime Mantras</div>
+            </div>
+            <div class="dash-card"><div class="dash-val" id="statToday">0</div><div class="dash-lbl">Today Beads</div></div>
+            <div class="dash-card"><div class="dash-val" id="statRounds">0</div><div class="dash-lbl">Today Rounds</div></div>
+        </div>
+
+        <!-- Round History List -->
+        <div class="history-box">
+            <div class="history-title">Recent Rounds (Time Taken)</div>
+            <div id="historyList">
+                <div style="text-align:center; padding:10px; color:#555;">No rounds completed yet.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const MAX_BEADS = 108;
+        const ring = document.getElementById('ring');
+        const circumference = 785;
+        ring.style.strokeDasharray = `${circumference} ${circumference}`;
+        ring.style.strokeDashoffset = circumference;
+
+        // --- VARIABLES ---
+        let beads = 0;
+        let targetRounds = 16;
+        let todayRoundsCount = 0;
+        
+        // Timer Vars
+        let startTime = null;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        // Data Storage
+        let japaHistory = JSON.parse(localStorage.getItem('japaStats')) || { lifetime: 0, days: {} };
+        let roundLogs = JSON.parse(localStorage.getItem('roundLogs')) || []; 
+
+        let isAudioPlaying = false;
+        let curLang = localStorage.getItem('lang') || 'en';
+        const audio = document.getElementById('japaAudio');
+
+        window.onload = () => {
+            loadData();
+            applyLanguage(curLang);
+            updateUI();
+        };
+
+        // --- CHANTING LOGIC ---
+        function chant() {
+            // 1. START TIMER (On first bead of the round)
+            if (beads === 0 && !isTimerRunning) {
+                startTimer();
+            }
+
+            beads++;
+            japaHistory.lifetime++;
+            
+            // Update Today's Count
+            const today = getTodayDate();
+            if (!japaHistory.days[today]) japaHistory.days[today] = 0;
+            japaHistory.days[today]++;
+
+            // Feedback
+            if (navigator.vibrate) navigator.vibrate(40);
+            animateBtn();
+
+            // 2. ROUND COMPLETE (108)
+            if (beads >= MAX_BEADS) {
+                completeRound();
+            }
+
+            saveData();
+            updateUI();
+        }
+
+        function completeRound() {
+            beads = 0;
+            todayRoundsCount++;
+            
+            // Stop Timer & Save Log
+            stopTimer();
+            const timeTaken = document.getElementById('timer').innerText;
+            saveRoundLog(timeTaken);
+
+            // Feedback
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+            alert(`Hare Krishna! Round Completed in ${timeTaken}`);
+            
+            // Reset Timer Display
+            document.getElementById('timer').innerText = "00:00";
+        }
+
+        // --- TIMER LOGIC ---
+        function startTimer() {
+            isTimerRunning = true;
+            startTime = Date.now();
+            document.getElementById('timer').style.color = "#4CAF50"; // Green when running
+            
+            timerInterval = setInterval(() => {
+                const diff = Math.floor((Date.now() - startTime) / 1000);
+                const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                const s = (diff % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            timerInterval = null;
+            document.getElementById('timer').style.color = "#FF9933"; // Orange when stopped
+        }
+
+        function saveRoundLog(time) {
+            const log = {
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                duration: time
+            };
+            roundLogs.unshift(log); // Add to top
+            if(roundLogs.length > 50) roundLogs.pop(); // Keep last 50 only
+            localStorage.setItem('roundLogs', JSON.stringify(roundLogs));
+        }
+
+        // --- UI UPDATE ---
+        function updateUI() {
+            document.getElementById('beadCount').innerText = beads;
+            
+            // Ring Progress
+            const offset = circumference - (beads / MAX_BEADS) * circumference;
+            ring.style.strokeDashoffset = offset;
+
+            // Stats Calculation
+            const today = getTodayDate();
+            const todayBeads = japaHistory.days[today] || 0;
+            todayRoundsCount = Math.floor(todayBeads / 108);
+            
+            document.getElementById('todayRounds').innerText = todayRoundsCount;
+            
+            // Target Bar
+            const pct = Math.min((todayRoundsCount / targetRounds) * 100, 100);
+            document.getElementById('targetBar').style.width = `${pct}%`;
+            document.getElementById('targetBar').style.background = (todayRoundsCount >= targetRounds) ? "#00E676" : "#4CAF50";
+        }
+
+        function animateBtn() {
+            const btn = document.querySelector('.tap-btn');
+            btn.style.transform = "scale(0.96)";
+            setTimeout(() => btn.style.transform = "scale(1)", 100);
+        }
+
+        // --- AUDIO ---
+        function toggleAudio() {
+            const btn = document.getElementById('audioBtn');
+            if (isAudioPlaying) {
+                audio.pause();
+                isAudioPlaying = false;
+                btn.classList.remove('active');
+            } else {
+                audio.play();
+                isAudioPlaying = true;
+                btn.classList.add('active');
+            }
+        }
+
+        // --- DATA ---
+        function saveData() {
+            localStorage.setItem('japaStats', JSON.stringify(japaHistory));
+            localStorage.setItem('currBeads', beads);
+            localStorage.setItem('timerState', isTimerRunning); 
+            // Note: We don't save partial timer state to avoid complexity on reload
+        }
+        
+        function loadData() {
+            beads = parseInt(localStorage.getItem('currBeads')) || 0;
+            // Check if user left mid-round, reset timer visual but keep bead count
+            if(beads > 0 && beads < 108) {
+                document.getElementById('timer').innerText = "Paused";
+            }
+        }
+
+        function resetCurrent() {
+            if(confirm("Reset current counter?")) {
+                beads = 0;
+                stopTimer();
+                document.getElementById('timer').innerText = "00:00";
+                saveData();
+                updateUI();
+            }
+        }
+
+        // --- STATS SCREEN ---
+        function openStats() {
+            const today = getTodayDate();
+            document.getElementById('statLifetime').innerText = japaHistory.lifetime;
+            document.getElementById('statToday').innerText = japaHistory.days[today] || 0;
+            document.getElementById('statRounds').innerText = todayRoundsCount;
+            
+            renderHistoryList();
+            document.getElementById('statsModal').style.display = 'flex';
+        }
+        
+        function closeStats() { document.getElementById('statsModal').style.display = 'none'; }
+
+        function renderHistoryList() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = "";
+            
+            if(roundLogs.length === 0) {
+                list.innerHTML = "<div style='text-align:center; padding:10px; color:#555;'>No rounds completed yet.</div>";
+                return;
+            }
+
+            roundLogs.forEach((log, i) => {
+                const item = document.createElement('div');
+                item.className = "hist-item";
+                item.innerHTML = `
+                    <div class="h-date">Round ${roundLogs.length - i} <span style="color:#666; font-size:0.7rem; margin-left:5px;">(${log.date} ${log.time})</span></div>
+                    <div class="h-time">${log.duration}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // --- LANGUAGE ---
+        const langMap = {
+            en: { t: "JAPA SADHANA", m1: "Hare Krishna Hare Krishna", m2: "Krishna Krishna Hare Hare\nHare Rama Hare Rama\nRama Rama Hare Hare" },
+            hi: { t: "जपा साधना", m1: "हरे कृष्ण हरे कृष्ण", m2: "कृष्ण कृष्ण हरे हरे\nहरे राम हरे राम\nराम राम हरे हरे" },
+            mr: { t: "जपा साधना", m1: "हरे कृष्ण हरे कृष्ण", m2: "कृष्ण कृष्ण हरे हरे\nहरे राम हरे राम\nराम राम हरे हरे" }
+        };
+        function changeLang() {
+            if (curLang === 'en') curLang = 'hi'; else if (curLang === 'hi') curLang = 'mr'; else curLang = 'en';
+            localStorage.setItem('lang', curLang);
+            applyLanguage(curLang);
+        }
+        function applyLanguage(l) {
+            const d = langMap[l];
+            document.querySelector('.nav-title').innerText = d.t;
+            document.getElementById('mTitle').innerText = d.m1;
+            document.getElementById('mBody').innerText = d.m2;
+        }
+        function getTodayDate() { return new Date().toISOString().split('T')[0]; }
+
+    </script>
+</body>
+</html>
