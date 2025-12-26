@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <meta name="description" content="ISKCON Hadapsar Japa Sadhana App">
+    <meta name="description" content="ISKCON Hadapsar Japa Sadhana">
     <title>ISKCON Hadapsar | Japa Sadhana</title>
     
     <!-- Tailwind CSS -->
@@ -22,7 +22,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { saffron: '#FF9933', deep: '#050505', glass: 'rgba(255,255,255,0.08)' },
+                    colors: { saffron: '#FF9933', deep: '#050505' },
                     fontFamily: { sans: ['Outfit', 'sans-serif'], serif: ['Cinzel', 'serif'] },
                     animation: { 'fade-in': 'fadeIn 0.3s ease-out' },
                     keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'scale(0.98)' }, '100%': { opacity: '1', transform: 'scale(1)' } } }
@@ -35,7 +35,6 @@
         body { background-color: #000; color: white; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
         * { user-select: none; -webkit-user-select: none; outline: none; }
         
-        /* Background Art */
         .bg-fixed-art {
             position: fixed; inset: 0; z-index: -1;
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj2zqiTZ78j6B7tqYFh5Cd-agJGzRJLOLARjfgZWNDzH9YjzEJ53lN8uveWFnvniWz58inZsgDc0aZdk5Feaddu14G9hoHnEOmUPb1_3ZdkT8ShL2PWpUe_sgf-EiNU4nWqD7X9ayVkkxa_Rpw5HpmP2qXLrAb74siFSirEj_a5C8Qk1oZGTq1yrgJqQ60/s1280/maxresdefault%20(2).jpg');
@@ -44,14 +43,13 @@
 
         .tap-active { transform: scale(0.96); border-color: #FF9933 !important; box-shadow: 0 0 40px rgba(255, 153, 51, 0.5); }
         .ring-progress { transition: stroke-dashoffset 0.1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
         
-        /* Accordion Styles */
+        /* Accordion */
         .history-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
         .history-card.active .history-details { max-height: 500px; }
         .history-card.active .chevron { transform: rotate(180deg); color: #FF9933; }
         .chevron { transition: transform 0.3s; }
-
-        .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="h-[100dvh] flex flex-col overflow-hidden text-gray-100">
@@ -174,31 +172,33 @@
                     <span class="text-sm text-gray-300">Vibration</span>
                     <input type="checkbox" id="vibToggle" class="w-5 h-5 accent-saffron">
                 </div>
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center bg-white/5 p-3 rounded-lg">
                     <div class="flex flex-col">
                         <span class="text-sm text-gray-300">Smart Notifications</span>
-                        <span class="text-[9px] text-gray-500">Reminds remaining rounds</span>
+                        <span class="text-[9px] text-gray-500">Reminds if inactive > 2 hrs</span>
                     </div>
-                    <input type="checkbox" id="notifyToggle" onchange="requestNotifyPermission()" class="w-5 h-5 accent-saffron">
+                    <input type="checkbox" id="notifyToggle" onchange="toggleNotifyPermission()" class="w-5 h-5 accent-saffron">
                 </div>
-                <button onclick="testNotification()" class="text-xs text-saffron underline w-full text-right mt-1 hover:text-white transition">Test Notification Now</button>
+                
+                <!-- SPECIAL TEST BUTTON -->
+                <button onclick="triggerTestNotification()" class="w-full py-2 bg-gray-800 text-saffron text-xs rounded border border-saffron/30 hover:bg-saffron/10 transition">
+                    <i class="fas fa-bell mr-1"></i> Test Notification (Wait 5s)
+                </button>
+                <p class="text-[9px] text-gray-500 text-center">Click Test, then minimize app to see magic.</p>
             </div>
 
             <button onclick="saveSettings()" class="w-full mt-6 bg-saffron text-black font-bold py-3.5 rounded-xl hover:bg-orange-500 transition">Save Changes</button>
         </div>
     </div>
 
-    <!-- HISTORY MODAL (ADVANCED) -->
+    <!-- HISTORY MODAL -->
     <div id="historyModal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-end sm:items-center justify-center animate-fade-in">
         <div class="bg-[#121212] w-full sm:w-[450px] h-[90vh] sm:h-[700px] sm:rounded-2xl rounded-t-2xl border border-white/10 flex flex-col shadow-2xl">
-            
-            <!-- Header -->
             <div class="p-4 border-b border-white/10 flex justify-between items-center bg-[#181818] rounded-t-2xl">
                 <h2 class="text-saffron font-serif text-lg">Japa History</h2>
                 <button onclick="closeModal('historyModal')" class="text-gray-400 text-xl hover:text-white">&times;</button>
             </div>
-
-            <!-- Lifetime Stats Summary -->
+            <!-- Lifetime Stats -->
             <div class="grid grid-cols-2 gap-4 p-4 border-b border-white/5 bg-[#141414]">
                 <div class="text-center">
                     <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Lifetime Rounds</div>
@@ -211,12 +211,9 @@
                     <div class="text-[9px] text-gray-400 mt-0.5">Rounds in one day</div>
                 </div>
             </div>
-            
-            <!-- Date Wise List -->
+            <!-- List -->
             <div class="p-3 bg-[#0a0a0a] text-xs text-gray-500 font-bold border-b border-white/5">DATE-WISE RECORD</div>
-            <div id="historyList" class="flex-1 overflow-y-auto p-4 space-y-3 hide-scroll">
-                <!-- Javascript will inject Cards here -->
-            </div>
+            <div id="historyList" class="flex-1 overflow-y-auto p-4 space-y-3 hide-scroll"></div>
         </div>
     </div>
 
@@ -226,15 +223,11 @@
             <i class="fas fa-check-circle text-5xl text-saffron mb-4 animate-bounce"></i>
             <h2 class="text-2xl text-white font-serif font-bold mb-1">Round Complete!</h2>
             <p class="text-xs text-gray-400 mb-6">"Chant and be happy"</p>
-
             <div class="bg-black/50 rounded-xl p-4 mb-6 border border-white/5">
                 <div class="flex justify-between text-xs text-gray-400 mb-1"><span>Round #</span><span id="celRoundNum" class="text-saffron font-bold">1</span></div>
                 <div class="flex justify-between text-xs text-gray-400"><span>Time</span><span id="celTime" class="text-white font-mono">00:00</span></div>
             </div>
-
-            <button onclick="startNextRound()" class="w-full bg-saffron text-black font-bold py-3 rounded-xl hover:scale-105 transition active:bg-orange-600 shadow-lg">
-                Start Next Round
-            </button>
+            <button onclick="startNextRound()" class="w-full bg-saffron text-black font-bold py-3 rounded-xl hover:scale-105 transition active:bg-orange-600 shadow-lg">Start Next Round</button>
         </div>
     </div>
 
@@ -261,7 +254,6 @@
         let timerInterval = null;
         let notifyInterval = null;
 
-        // --- INIT ---
         window.onload = () => {
             loadData();
             updateUI();
@@ -272,10 +264,8 @@
         // --- CHANTING LOGIC ---
         function handleTap(e) {
             if(e) e.preventDefault();
-            
             state.beads++;
             state.lastActivity = Date.now();
-
             if(state.beads === 1 && !state.timer.running) toggleTimer(true);
 
             // Visuals
@@ -291,19 +281,13 @@
                 aud.play().catch(()=>{});
             }
 
-            if(state.beads >= MAX_BEADS) {
-                completeRound();
-            } else {
-                updateUI();
-                saveData();
-            }
+            if(state.beads >= MAX_BEADS) completeRound();
+            else { updateUI(); saveData(); }
         }
 
         function completeRound() {
             toggleTimer(false);
             state.roundsToday++;
-            
-            // History
             const today = new Date().toISOString().split('T')[0];
             if(!state.history[today]) state.history[today] = [];
             state.history[today].push({
@@ -311,14 +295,10 @@
                 duration: formatTime(state.timer.elapsed),
                 roundNum: state.roundsToday
             });
-
-            // Update UI Modal
             document.getElementById('celRoundNum').innerText = state.roundsToday;
             document.getElementById('celTime').innerText = formatTime(state.timer.elapsed);
             document.getElementById('celebrationModal').classList.remove('hidden');
-            
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FF9933', '#ffffff'] });
-            
             saveData();
             updateUI();
         }
@@ -333,126 +313,111 @@
             document.getElementById('timerDisplay').innerText = "00:00";
         }
 
-        // --- ADVANCED HISTORY RENDER (The Update) ---
+        // --- HISTORY RENDER ---
         function renderHistory() {
             const list = document.getElementById('historyList');
             list.innerHTML = "";
-            const dates = Object.keys(state.history).sort((a,b) => new Date(b) - new Date(a)); // Sort descending
+            const dates = Object.keys(state.history).sort((a,b) => new Date(b) - new Date(a));
             const todayStr = new Date().toISOString().split('T')[0];
             
-            // Calculate Lifetime Stats
             let totalLifetimeRounds = 0;
             let bestDay = 0;
 
             if(dates.length === 0) {
-                list.innerHTML = "<div class='text-center text-gray-500 mt-10 text-xs'>No history yet. Start chanting today!</div>";
-                document.getElementById('histTotalRounds').innerText = "0";
-                document.getElementById('histTotalBeads').innerText = "0 Mantras";
-                document.getElementById('histBestDay').innerText = "0";
+                list.innerHTML = "<div class='text-center text-gray-500 mt-10 text-xs'>No history yet.</div>";
                 return;
             }
 
-            // Loop Dates
             dates.forEach(date => {
                 const rounds = state.history[date];
                 const count = rounds.length;
-                
-                // Stats Logic
                 totalLifetimeRounds += count;
                 if(count > bestDay) bestDay = count;
 
-                // Create Date Card
                 const card = document.createElement('div');
                 card.className = "history-card bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/5 mb-3 transition-all";
                 
-                // Human Friendly Date
                 const dateObj = new Date(date);
                 const isToday = date === todayStr;
-                // Check if Yesterday
-                const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-                const isYesterday = date === yesterday.toISOString().split('T')[0];
-                
                 let displayDate = dateObj.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
                 if(isToday) displayDate = "Today";
-                if(isYesterday) displayDate = "Yesterday";
 
-                // Header
                 const header = document.createElement('div');
                 header.className = "flex justify-between items-center p-4 cursor-pointer hover:bg-white/5 transition";
                 header.onclick = () => {
-                    // Close others
                     document.querySelectorAll('.history-card').forEach(el => { if(el!==card) el.classList.remove('active'); });
                     card.classList.toggle('active');
                 };
 
                 header.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <div class="bg-saffron/20 text-saffron w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border border-saffron/30 shadow-inner">${count}</div>
+                        <div class="bg-saffron/20 text-saffron w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border border-saffron/30">${count}</div>
                         <div>
-                            <div class="font-bold text-white text-sm flex items-center gap-2">
-                                ${displayDate} 
-                                ${isToday ? '<span class="text-[9px] bg-green-500/20 text-green-500 px-1.5 rounded">ACTIVE</span>' : ''}
-                            </div>
+                            <div class="font-bold text-white text-sm flex items-center gap-2">${displayDate}</div>
                             <div class="text-[10px] text-gray-500">${count} Rounds Completed</div>
                         </div>
                     </div>
                     <i class="fas fa-chevron-down text-gray-500 chevron text-sm"></i>
                 `;
 
-                // Body (Details)
                 const body = document.createElement('div');
                 body.className = "history-details bg-[#111]";
-                
                 let rows = `<div class="p-3 space-y-2 border-t border-white/5">`;
-                rounds.forEach((r, idx) => {
+                rounds.forEach((r) => {
                     rows += `
-                        <div class="flex justify-between items-center text-xs bg-white/5 p-2.5 rounded border border-white/5 hover:border-saffron/30 transition">
-                            <div class="flex items-center gap-2">
-                                <span class="text-saffron font-bold text-[10px] bg-saffron/10 px-1.5 py-0.5 rounded">#${r.roundNum}</span>
-                                <span class="text-gray-400">at ${r.time}</span>
-                            </div>
+                        <div class="flex justify-between items-center text-xs bg-white/5 p-2.5 rounded border border-white/5">
+                            <span class="text-saffron font-bold text-[10px]">#${r.roundNum}</span>
+                            <span class="text-gray-400">at ${r.time}</span>
                             <span class="font-mono text-white">${r.duration}</span>
                         </div>
                     `;
                 });
                 rows += `</div>`;
                 body.innerHTML = rows;
-
                 card.appendChild(header);
                 card.appendChild(body);
                 list.appendChild(card);
             });
 
-            // Update Summary Stats
             document.getElementById('histTotalRounds').innerText = totalLifetimeRounds;
             document.getElementById('histTotalBeads').innerText = (totalLifetimeRounds * 108).toLocaleString() + " Mantras";
             document.getElementById('histBestDay').innerText = bestDay;
         }
 
-        // --- NOTIFICATION LOGIC ---
-        function requestNotifyPermission() {
-            if (!("Notification" in window)) return;
-            Notification.requestPermission().then(permission => {
-                state.settings.notify = (permission === "granted");
-                document.getElementById('notifyToggle').checked = state.settings.notify;
-            });
+        // --- NOTIFICATIONS SYSTEM ---
+        function toggleNotifyPermission() {
+            const toggle = document.getElementById('notifyToggle');
+            if(toggle.checked) {
+                if (!("Notification" in window)) {
+                    alert("This browser does not support notifications.");
+                    toggle.checked = false;
+                    return;
+                }
+                Notification.requestPermission().then(permission => {
+                    state.settings.notify = (permission === "granted");
+                    toggle.checked = state.settings.notify;
+                    if(state.settings.notify) new Notification("ISKCON Hadapsar", { body: "Smart Notifications Enabled!" });
+                });
+            } else {
+                state.settings.notify = false;
+            }
         }
 
+        // Smart Check: Run every 10 mins
         function checkNotifications() {
             if(!state.settings.notify || Notification.permission !== "granted") return;
-            const inactiveTime = Date.now() - state.lastActivity;
-            
-            if (inactiveTime > 7200000 && state.roundsToday < state.target) {
+            // 2 Hours = 7200000 ms
+            if ((Date.now() - state.lastActivity) > 7200000 && state.roundsToday < state.target) {
                 sendNotification();
-                state.lastActivity = Date.now(); 
+                state.lastActivity = Date.now(); // Reset trigger to avoid spam
             }
         }
 
         function sendNotification() {
             const remaining = state.target - state.roundsToday;
             const msg = remaining > 0 
-                ? `Hare Krishna! You have completed ${state.roundsToday} rounds. ${remaining} more to go for your target of ${state.target}.`
-                : `Hare Krishna! Target reached (${state.target}). Keep chanting!`;
+                ? `Hare Krishna! ${remaining} rounds remaining for your target of ${state.target}.`
+                : `Hare Krishna! You reached your goal. Chant more!`;
 
             new Notification("ISKCON Hadapsar", {
                 body: msg,
@@ -461,12 +426,19 @@
             });
         }
 
-        function testNotification() {
-            if(Notification.permission === "granted") sendNotification();
-            else alert("Permission not granted.");
+        // TEST BUTTON LOGIC
+        function triggerTestNotification() {
+            if(Notification.permission === "granted") {
+                alert("Wait! Notification will come in 5 seconds. Minimize the app now.");
+                setTimeout(() => {
+                    sendNotification();
+                }, 5000);
+            } else {
+                alert("Please enable notification permission first using the toggle.");
+            }
         }
 
-        // --- SETTINGS & UTILS ---
+        // --- UTILS ---
         function setTargetInput(val) { document.getElementById('customTargetInput').value = val; }
         
         function saveSettings() {
@@ -474,7 +446,6 @@
             if(val > 0) state.target = parseInt(val);
             state.settings.sound = document.getElementById('soundToggle').checked;
             state.settings.vib = document.getElementById('vibToggle').checked;
-            state.settings.notify = document.getElementById('notifyToggle').checked;
             saveData();
             updateUI();
             closeModal('settingsModal');
@@ -521,10 +492,10 @@
             saveData();
         }
 
-        function saveData() { localStorage.setItem('iskcon_v10', JSON.stringify(state)); }
+        function saveData() { localStorage.setItem('iskcon_v11', JSON.stringify(state)); }
         
         function loadData() {
-            const raw = localStorage.getItem('iskcon_v10') || localStorage.getItem('iskcon_final');
+            const raw = localStorage.getItem('iskcon_v11') || localStorage.getItem('iskcon_v10');
             if(raw) {
                 const data = JSON.parse(raw);
                 state = { ...state, ...data };
